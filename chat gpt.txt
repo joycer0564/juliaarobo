@@ -1,0 +1,37 @@
+import robocode.*;
+
+public class MeuRobo extends AdvancedRobot {
+    
+    boolean inimigoAtirou = false;
+    
+    public void run() {
+        // Gire o radar para encontrar inimigos
+        turnRadarRight(Double.POSITIVE_INFINITY);
+    }
+    
+    public void onScannedRobot(ScannedRobotEvent e) {
+        // Verifica se o inimigo disparou
+        if (e.getEnergy() < getEnergy()) {
+            inimigoAtirou = true;
+        }
+        
+        // Se o inimigo atirou, mova-se
+        if (inimigoAtirou) {
+            // Avança ou recua
+            if (getDistanceRemaining() == 0) {
+                setAhead(100); // Avança 100 pixels
+            }
+        }
+    }
+    
+    public void onHitByBullet(HitByBulletEvent e) {
+        // Se for atingido por um tiro, vire-se para o inimigo e atire
+        turnRight(e.getBearing());
+        fire(3); // Ajuste o poder do tiro conforme necessário
+    }
+    
+    public void onHitRobot(HitRobotEvent e) {
+        // Se colidir com um robô, recue
+        back(50); // Recua 50 pixels
+    }
+}

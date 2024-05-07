@@ -1,0 +1,58 @@
+import robocode.*;
+
+public class MyAwesomeRobot extends AdvancedRobot {
+
+    private static final double RADAR_FOV = 360;
+    private static final int GUN_ROTATION_SPEED = 100;
+    private static final int FIRE_POWER = 30;
+
+    private double direction = 0; // Direção atual do movimento
+    private double lastEnemyBearing = 0; // Ângulo do último inimigo encontrado
+
+    public void run() {
+        setTurnRadarRight(RADAR_FOV);
+
+        while (true) {
+            ScanResult[] scanResults = getRadarResults();
+
+            if (scanResults.length > 0) {
+                double enemyBearing = scanResults[0].getBearing();
+                turnGunRight(enemyBearing - getGunHeading()); // Alinha o canhão com o inimigo
+                fire(FIRE_POWER);
+
+                // Atualiza o ângulo do último inimigo encontrado
+                lastEnemyBearing = enemyBearing;
+            }
+
+            // Movimento multidirecional
+            switch ((int) direction) {
+                case 0:
+                    setAhead(100); // Move para frente
+                    break;
+                case 1:
+                    setTurnRight(45); // Vira 45 graus para a direita
+                    direction = 2;
+                    break;
+                case 2:
+                    setAhead(100); // Move para frente
+                    break;
+                case 3:
+                    setTurnRight(90); // Vira 90 graus para a direita
+                    direction = 0;
+                    break;
+            }
+
+            // Ajusta a direção após o movimento
+            direction += 0.1; // Aumenta a direção gradualmente
+            if (direction >= 4) {
+                direction = 0; // Reinicia a direção para o ciclo
+            }
+        }
+    }
+
+    public void onHitRobot(HitRobotEvent event) {
+        double angleToEnemy = event.getBearing();
+        turnLeft(90 - angleToEnemy);
+        fire(FIRE_POWER + 10);
+    }
+}
